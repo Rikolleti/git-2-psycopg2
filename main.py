@@ -32,7 +32,7 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             conn.commit()
 
 
-        # ДОБАВЛЕНИЕ ИНФОРМАЦИИ В ТАБЛИЦУ КЛИЕНТОВ
+        # ДОБАВЛЕНИЕ ИНФОРМАЦИИ В ТАБЛИЦУ КЛИЕНТОВ И ПОЛУЧЕНИЕ ID КЛИЕНТА
         def insert_client(first_name: str, last_name: str, email: str, phone_number: str =None):
             cur.execute("""
             INSERT INTO clients (first_name, last_name, email)
