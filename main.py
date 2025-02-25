@@ -3,6 +3,15 @@ import psycopg2
 with psycopg2.connect(database="netology_db", user="postgres", password="postgres") as conn:
     with conn.cursor() as cur:
 
+        #УДАЛЕНИЕ ТАБЛИЦ
+        def drop_table():
+            cur.execute("""
+            DROP TABLE phones;
+            DROP TABLE clients;
+            """)
+
+
+        # СОЗДАНИЕ ТАБЛИЦ
         def create_table():
             cur.execute("""
             CREATE TABLE IF NOT EXISTS clients(
@@ -22,6 +31,8 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             """)
             conn.commit()
 
+
+        # ДОБАВЛЕНИЕ ИНФОРМАЦИИ В ТАБЛИЦУ КЛИЕНТОВ
         def insert_client(first_name: str, last_name: str, email: str, phone_number: str =None):
             cur.execute("""
             INSERT INTO clients (first_name, last_name, email)
@@ -32,6 +43,7 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             show_client_id = cur.fetchone()[0]
             return show_client_id
 
+        # ДОБАВЛЕНИЕ ИНФОРМАЦИИ В ТАБЛИЦУ ТЕЛЕФОННЫХ НОМЕРОВ
         def insert_phone_number(client_id: int, phone_number: str):
             cur.execute("""
             INSERT INTO phones (client_id, phone_number)
@@ -45,6 +57,7 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             print('Phone_Number:', res)
             return res
 
+        # ВЫВОД ИНФОРМАЦИИ О КЛИЕНТАХ
         def show_clients_info():
             cur.execute("""
             SELECT * FROM clients;
@@ -53,6 +66,7 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             print('Client:', res)
             return res
 
+        # ИЗМЕНЕНИЕ ИНФОРМАЦИИ О КЛИЕНТАХ
         def change_client_info(first_name: str, last_name: str, client_id: int, email=None):
             cur.execute("""
             UPDATE clients SET first_name=%s, last_name=%s, email=%s
@@ -66,32 +80,8 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             print('Client Info After Changing: ', res)
             return res
 
-        def delete_phone(client_id: int):
-            cur.execute("""
-            DELETE FROM phones
-            WHERE client_id = %s;
-            """, (client_id,))
-            conn.commit()
-            return "Phone deleted"
 
-        def delete_client(client_id: int):
-            cur.execute("""
-            DELETE FROM clients
-            WHERE client_id = %s;
-            """, (client_id,))
-            conn.commit()
-            return f"Client {client_id} deleted"
-
-        def reset_autoincrement():
-            cur.execute("""
-            ALTER SEQUENCE public.clients_client_id_seq RESTART WITH 1;
-            """)
-            cur.execute("""
-            ALTER SEQUENCE public.phones_phone_id_seq RESTART WITH 1;;
-            """)
-            conn.commit()
-            return f"Autoincrement for clients and phones tables reseted"
-
+        # ПОИСК КЛИЕНТА
         def find_client(first_name=None, last_name=None, email=None, phone=None):
             query = """
             SELECT clients.*
@@ -113,25 +103,53 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
             if phone is not None:
                 query += " AND phones.phone_number = %s"
                 params.append(phone)
-
             cur.execute(query, tuple(params))
             res = cur.fetchall()
-
             if res:
                 print('Client(s) found:', res)
             else:
                 print('No clients found.')
-
             return res
 
+        # УДАЛЕНИЕ ИНФОРМАЦИИ О НОМЕРЕ ТЕЛЕФОНА КЛИЕНТА
+        def delete_phone(client_id: int):
+            cur.execute("""
+            DELETE FROM phones
+            WHERE client_id = %s;
+            """, (client_id,))
+            conn.commit()
+            return "Phone deleted"
+
+        # УДАЛЕНИЕ КЛИЕНТА
+        def delete_client(client_id: int):
+            cur.execute("""
+            DELETE FROM clients
+            WHERE client_id = %s;
+            """, (client_id,))
+            conn.commit()
+            return f"Client {client_id} deleted"
+
+        # СБРОС АВТОИНКРЕМЕНТА
+        def reset_autoincrement():
+            cur.execute("""
+            ALTER SEQUENCE public.clients_client_id_seq RESTART WITH 1;
+            """)
+            cur.execute("""
+            ALTER SEQUENCE public.phones_phone_id_seq RESTART WITH 1;;
+            """)
+            conn.commit()
+            return f"Autoincrement for clients and phones tables was reset"
+
+        # ВЫЗОВ ФУНКЦИЙ
+        drop_table()
         create_table()
         client_id =insert_client('Андрей', 'Матросов', 'andrmatrosov@mail.ru')
         insert_phone_number(client_id, "+7-999-123-45-67")
         show_clients_info()
         change_client_info("Алексей", 'Воробьев', 1, email="alekvorobyev@mail.ru", )
         (find_client(None, None, None, "+7-999-123-45-67"))
-        phone_delete = delete_phone(client_id)
-        delete_client(client_id)
-        reset_autoincrement()
+        # phone_delete = delete_phone(client_id)
+        # delete_client(client_id)
+        # reset_autoincrement()
 
 conn.close()
