@@ -47,7 +47,7 @@ def insert_phone_number(client_id: int, phone_number: str):
     """)
     res = cur.fetchone()[2]
     print('Phone_Number:', res)
-    return res
+    return
 
 # ВЫВОД ИНФОРМАЦИИ О КЛИЕНТАХ
 def show_clients_info():
@@ -56,7 +56,7 @@ def show_clients_info():
     """)
     res = cur.fetchall()
     print('Client:', res)
-    return res
+    return
 
 # ИЗМЕНЕНИЕ ИНФОРМАЦИИ О КЛИЕНТАХ
 def change_client_info(client_id: int, first_name=None, last_name=None, email=None):
@@ -74,17 +74,16 @@ def change_client_info(client_id: int, first_name=None, last_name=None, email=No
         params.append(email)
     if not updates:
         print("Нет полей для изменения.")
-        return
 
     query = f"""
     UPDATE clients
     SET {', '.join(updates)}
     WHERE client_id = %s;
     """
-
     params.append(client_id)
     cur.execute(query, tuple(params))
     print(f"Client {client_id} info updated.")
+    return
 
 # ПОИСК КЛИЕНТА
 def find_client(first_name=None, last_name=None, email=None, phone=None):
@@ -114,7 +113,7 @@ def find_client(first_name=None, last_name=None, email=None, phone=None):
         print('Client(s) found:', res)
     else:
         print('No clients found.')
-    return res
+    return
 
 # УДАЛЕНИЕ ИНФОРМАЦИИ О НОМЕРЕ ТЕЛЕФОНА КЛИЕНТА
 def delete_phone(client_id: int):
@@ -122,7 +121,8 @@ def delete_phone(client_id: int):
     DELETE FROM phones
     WHERE client_id = %s;
     """, (client_id,))
-    return "Phone deleted"
+    print ("Phone deleted")
+    return
 
 # УДАЛЕНИЕ КЛИЕНТА
 def delete_client(client_id: int):
@@ -158,7 +158,8 @@ def reset_autoincrement():
     cur.execute("""
     ALTER SEQUENCE public.phones_phone_id_seq RESTART WITH 1;;
     """)
-    return f"Autoincrement for clients and phones tables was reset"
+    print("Autoincrement for clients and phones tables was reset")
+    return
 
 # МЕНЕДЖЕР ПОДКЛЮЧЕНИЯ
 with psycopg2.connect(database="netology_db", user="postgres", password="postgres") as conn:
@@ -166,13 +167,13 @@ with psycopg2.connect(database="netology_db", user="postgres", password="postgre
         # ВЫЗОВ ФУНКЦИЙ
         drop_table()
         create_table()
-        client_id = insert_client('Андрей', 'Матросов', 'andrmatrosov@mail.ru')
+        client_id = insert_client('Артем', 'Матросов', 'andrmatrosov@mail.ru')
         insert_phone_number(client_id, "+7-999-123-45-67")
         show_clients_info()
         change_client_info(client_id=1, last_name='Воробьев')
         show_clients_info()
-        (find_client(first_name='Андрей'))
-        phone_delete = delete_phone(client_id)
+        (find_client(first_name='Артем'))
+        # delete_phone(client_id)
         delete_client(client_id)
         reset_autoincrement()
 
