@@ -162,19 +162,22 @@ def reset_autoincrement():
     return
 
 # МЕНЕДЖЕР ПОДКЛЮЧЕНИЯ
-with psycopg2.connect(database="netology_db", user="postgres", password="postgres") as conn:
-    with conn.cursor() as cur:
-        # ВЫЗОВ ФУНКЦИЙ
-        drop_table()
-        create_table()
-        client_id = insert_client('Артем', 'Матросов', 'andrmatrosov@mail.ru')
-        insert_phone_number(client_id, "+7-999-123-45-67")
-        show_clients_info()
-        change_client_info(client_id=1, last_name='Воробьев')
-        show_clients_info()
-        (find_client(first_name='Артем'))
-        # delete_phone(client_id)
-        delete_client(client_id)
-        reset_autoincrement()
+if __name__ == "__main__":
+    with psycopg2.connect(database="netology_db", user="postgres", password="postgres") as conn:
+        with conn.cursor() as cur:
+            # ВЫЗОВ ФУНКЦИЙ
+            drop_table()
+            create_table()
+            client_id = insert_client('Артем', 'Матросов', 'andrmatrosov@mail.ru')
+            insert_phone_number(client_id, "+7-999-123-45-67")
+            show_clients_info()
+            change_client_info(client_id=1, last_name='Воробьев')
+            show_clients_info()
+            (find_client(first_name='Артем'))
+            delete_phone(client_id)
+            delete_client(client_id)
+            reset_autoincrement()
 
-conn.close()
+    conn.close()
+else:
+    print("Модуль main был импортирован в другой модуль")
